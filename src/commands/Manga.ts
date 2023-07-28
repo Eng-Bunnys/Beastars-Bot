@@ -2,10 +2,12 @@ import GBFClient from "../handler/clienthandler";
 import { ChannelsModel } from "../schemas/Beasters Schemas/Channels Schema";
 import {
   downloadImageByIndex,
+  findChapterInstances,
   getChapterPosition,
   getChapters,
+  getGroupName,
   getNextChapter
-} from "../utils/BeastersEngine";
+} from "../utils/BeastarsEngine";
 import { SendAndDelete } from "../utils/Engine";
 import Command from "../utils/command";
 
@@ -47,16 +49,34 @@ export default class GetManagaFromDex extends Command {
   }
   async execute({ client, message, args }: LegacyCommandExecute) {
     const mangaId = "f5e3baad-3cd4-427c-a2ec-ad7d776b370d";
-    const mangaVersion: number = 1;
+
+    let mangaVersion = `97b9cff4-7b84-4fed-929e-1a514be6ca20`;
+
     try {
-      const mangaDownloader = new MangaDownloader(mangaId, mangaVersion);
-      const FetchedManga = await mangaDownloader.downloadMangaChapter(
+      let pageNumber = Number(args[1]);
+      let chapterNumber = Number(args[0]);
+
+      interface IMangaDetails {
+        version: string;
+        page: number;
+        chapter: number;
+        versionOneMax?: number;
+        versionTwoMax?: number;
+      }
+
+      let mangaDetails: IMangaDetails = {
+        version: mangaVersion,
+        page: pageNumber,
+        chapter: chapterNumber
+      };
+
+      let mangaDownloader = new MangaDownloader(mangaId, mangaDetails.version);
+      let FetchedManga = await mangaDownloader.downloadMangaChapter(
         message,
         args as string[]
       );
 
-      let pageNumber = Number(args[1]);
-      let chapterNumber = Number(args[0]);
+      mangaDetails.versionOneMax = FetchedManga.maxPages;
 
       if (FetchedManga.spoiler) {
         return message.reply({
@@ -92,7 +112,7 @@ export default class GetManagaFromDex extends Command {
           .setCustomId("newChapter")
           .setStyle(ButtonStyle.Primary)
           .setEmoji("⏩")
-          .setLabel(`Go to the next chapter`);
+          .setLabel(`Next chapter`);
 
         if (pageNumber >= FetchedManga.maxPages)
           forwardButtons.setDisabled(true);
@@ -103,6 +123,26 @@ export default class GetManagaFromDex extends Command {
 
         if (pageNumber >= FetchedManga.maxPages)
           PaginationButtons.addComponents([NextChapterButtons]);
+
+        const currentVersion = getGroupName(FetchedManga.relations[0].id);
+
+        const otherVersion =
+          currentVersion === "Hybridgumi" ? "HCS" : "Hybridgumi";
+
+        const chaneVersionButtons = new ButtonBuilder()
+          .setLabel(`Change to ${otherVersion}`)
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId("changeVersion")
+          .setEmoji("ℹ️");
+
+        if (
+          findChapterInstances(
+            chapterNumber.toString(),
+            FetchedManga.allChapters
+          ).length
+        ) {
+          PaginationButtons.addComponents([chaneVersionButtons]);
+        }
 
         const MainMessage = await message.reply({
           embeds: [MainImageEmbed],
@@ -142,7 +182,7 @@ export default class GetManagaFromDex extends Command {
             .setCustomId("newChapter")
             .setStyle(ButtonStyle.Primary)
             .setEmoji("⏩")
-            .setLabel(`Go to the next chapter`);
+            .setLabel(`Next chapter`);
 
           if (buttonID === "backManga" || buttonID === "goManga") {
             let NewFetchedManga = await mangaDownloader.downloadMangaChapter(
@@ -155,6 +195,28 @@ export default class GetManagaFromDex extends Command {
                 NewbackButtons,
                 NewforwardButtons
               ]);
+
+            const NewcurrentVersion = getGroupName(
+              NewFetchedManga.relations[0].id
+            );
+
+            const NewotherVersion =
+              NewcurrentVersion === "Hybridgumi" ? "HCS" : "Hybridgumi";
+
+            const NewchaneVersionButtons = new ButtonBuilder()
+              .setLabel(`Change to ${NewotherVersion}`)
+              .setStyle(ButtonStyle.Primary)
+              .setCustomId("changeVersion")
+              .setEmoji("ℹ️");
+
+            if (
+              findChapterInstances(
+                chapterNumber.toString(),
+                NewFetchedManga.allChapters
+              ).length
+            ) {
+              NewButtonsRow.addComponents([NewchaneVersionButtons]);
+            }
 
             if (pageNumber >= NewFetchedManga.maxPages) {
               NewforwardButtons.setDisabled(true);
@@ -177,6 +239,8 @@ export default class GetManagaFromDex extends Command {
                 }`
               )
               .setColor(colors.DEFAULT as ColorResolvable);
+
+            mangaDetails.page = pageNumber;
 
             await MainMessage.edit({
               embeds: [NewMainImageEmbed],
@@ -215,6 +279,28 @@ export default class GetManagaFromDex extends Command {
                 forwardButtons
               ]);
 
+            const NewcurrentVersion = getGroupName(
+              NewFetchedManga.relations[0].id
+            );
+
+            const NewotherVersion =
+              NewcurrentVersion === "Hybridgumi" ? "HCS" : "Hybridgumi";
+
+            const NewchaneVersionButtons = new ButtonBuilder()
+              .setLabel(`Change to ${NewotherVersion}`)
+              .setStyle(ButtonStyle.Primary)
+              .setCustomId("changeVersion")
+              .setEmoji("ℹ️");
+
+            if (
+              findChapterInstances(
+                chapterNumber.toString(),
+                NewFetchedManga.allChapters
+              ).length
+            ) {
+              FirstPageButtons.addComponents([NewchaneVersionButtons]);
+            }
+
             const NewMainImageEmbed = new EmbedBuilder()
               .setTitle(
                 `${
@@ -231,17 +317,129 @@ export default class GetManagaFromDex extends Command {
               )
               .setColor(colors.DEFAULT as ColorResolvable);
 
+            await interaction.reply({
+              content: `${emojis.Loading} Loading | Feel free to dismiss this message`,
+              ephemeral: true
+            });
+
+            mangaDetails.page = 1;
+            mangaDetails.chapter = chapterNumber;
+
             await MainMessage.edit({
               embeds: [NewMainImageEmbed],
               files: [NewFetchedManga.files[0]],
               components: [FirstPageButtons]
             });
+          } else if (buttonID === "changeVersion") {
+            if (mangaDetails.version === "97b9cff4-7b84-4fed-929e-1a514be6ca20")
+              mangaDetails.version = "ca84d695-4e0e-48ba-8627-3cbb4f44f95b";
+            else mangaDetails.version = "97b9cff4-7b84-4fed-929e-1a514be6ca20";
+
+            mangaDownloader = new MangaDownloader(
+              mangaId,
+              mangaDetails.version
+            );
+
+            let NewFetchedManga = await mangaDownloader.downloadMangaChapter(
+              message,
+              [mangaDetails.chapter, mangaDetails.page]
+            );
+
+            if (NewFetchedManga.maxPages === undefined)
+              NewFetchedManga = await mangaDownloader.downloadMangaChapter(
+                message,
+                [mangaDetails.chapter, mangaDetails.versionOneMax]
+              );
+
+            mangaDetails.versionTwoMax = NewFetchedManga.maxPages;
+
+            const MainImageEmbed = new EmbedBuilder()
+              .setTitle(
+                `${
+                  NewFetchedManga.chapterTitle.length
+                    ? FetchedManga.chapterTitle
+                    : "MangaDex Beastars"
+                }`
+              )
+              .setDescription(NewFetchedManga.content)
+              .setImage(
+                `attachment://${
+                  (NewFetchedManga.files[0] as AttachmentBuilder).name
+                }`
+              )
+              .setColor(colors.DEFAULT as ColorResolvable);
+
+            const forwardButtons = new ButtonBuilder()
+              .setCustomId("goManga")
+              .setStyle(ButtonStyle.Primary)
+              .setEmoji("➡️");
+
+            const backButtons = new ButtonBuilder()
+              .setCustomId("backManga")
+              .setStyle(ButtonStyle.Primary)
+              .setEmoji("⬅️");
+
+            const NextChapterButtons = new ButtonBuilder()
+              .setCustomId("newChapter")
+              .setStyle(ButtonStyle.Primary)
+              .setEmoji("⏩")
+              .setLabel(`Next chapter`);
+
+            if (pageNumber >= NewFetchedManga.maxPages)
+              forwardButtons.setDisabled(true);
+            if (pageNumber <= 1) backButtons.setDisabled(true);
+
+            const PaginationButtons: ActionRowBuilder<any> =
+              new ActionRowBuilder().addComponents([
+                backButtons,
+                forwardButtons
+              ]);
+
+            if (pageNumber >= NewFetchedManga.maxPages)
+              PaginationButtons.addComponents([NextChapterButtons]);
+
+            const currentVersion = getGroupName(
+              NewFetchedManga.relations[0].id
+            );
+
+            const otherVersion =
+              currentVersion === "Hybridgumi" ? "HCS" : "Hybridgumi";
+
+            const chaneVersionButtons = new ButtonBuilder()
+              .setLabel(`Change to ${otherVersion}`)
+              .setStyle(ButtonStyle.Primary)
+              .setCustomId("changeVersion")
+              .setEmoji("ℹ️");
+
+            if (
+              findChapterInstances(
+                chapterNumber.toString(),
+                NewFetchedManga.allChapters
+              ).length
+            ) {
+              PaginationButtons.addComponents([chaneVersionButtons]);
+            }
+
+            await interaction.reply({
+              content: `${emojis.Loading} Loading`,
+              ephemeral: true
+            });
+
+            await MainMessage.edit({
+              embeds: [MainImageEmbed],
+              files: [NewFetchedManga.files[0]],
+              components: [PaginationButtons]
+            });
           }
         });
 
         collector.on("end", async (collected, reason) => {
+          forwardButtons.setDisabled(true);
+          backButtons.setDisabled(true);
+          NextChapterButtons.setDisabled(true);
+          chaneVersionButtons.setDisabled(true);
           await MainMessage.edit({
-            components: []
+            components: [PaginationButtons]
           });
         });
       }
