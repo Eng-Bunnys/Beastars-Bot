@@ -34,10 +34,60 @@ export function FormatName(name: string): string {
   return formattedWords.join(" ");
 }
 
+interface Chapter {
+  id: string;
+  type: string;
+  attributes: {
+    volume: string;
+    chapter: string;
+    title: string;
+    translatedLanguage: string;
+    externalUrl: string | null;
+    publishAt: Date;
+    readableAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    pages: number;
+    version: number;
+  };
+  relationships: Relationship[];
+}
+
+interface Relationship {
+  id: string;
+  type: string;
+}
+
+export function getChapterPosition(
+  chapters: Chapter[],
+  chapterNumber: string,
+  next: boolean
+): number {
+  const index = chapters.findIndex(
+    (chapter) => chapter.attributes.chapter === chapterNumber
+  );
+  if (index !== -1) {
+    if (next) {
+      return index + 1;
+    } else {
+      return index;
+    }
+  }
+  return -1;
+}
+
+export function getNextChapter(
+  chapters: Chapter[],
+  chapterNumber: string
+): Chapter | null {
+  const position = getChapterPosition(chapters, chapterNumber, true);
+  return position !== -1 ? chapters[position] : null;
+}
+
 export async function getChapters(
   mangaId: string,
   type: number
-): Promise<any[]> {
+): Promise<Chapter[]> {
   try {
     const baseUrl = "https://api.mangadex.org";
 
@@ -97,6 +147,15 @@ export async function downloadImageByIndex(
 
       const filePath = path.join(savePath, filename);
 
+      if (fs.existsSync(filePath)) {
+        return {
+          message: `Page ${index + 1}/${filenames.length}`,
+          filePath,
+          chapterURL: chapterBaseURL,
+          maxFiles: filenames.length
+        };
+      }
+
       const imageResponse = await axios.get(imageUrl, {
         responseType: "arraybuffer"
       });
@@ -112,11 +171,10 @@ export async function downloadImageByIndex(
         maxFiles: filenames.length
       };
     } else {
-      throw new Error(`9 Image index out of range [${filenames.length} pages]`);
+      throw new Error(`Image index out of range [${filenames.length} pages]`);
     }
   } catch (error) {
-    if (!(error instanceof Error))
-      console.error("Failed to download image:", error);
+    console.error("Failed to download image:", error);
     throw error;
   }
 }
