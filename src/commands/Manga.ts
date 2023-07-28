@@ -1,10 +1,10 @@
+/**
+ * Written by Bunnys
+ * Under GBF
+ */
 import GBFClient from "../handler/clienthandler";
-import { ChannelsModel } from "../schemas/Beasters Schemas/Channels Schema";
 import {
-  downloadImageByIndex,
   findChapterInstances,
-  getChapterPosition,
-  getChapters,
   getGroupName,
   getNextChapter
 } from "../utils/BeastarsEngine";
@@ -13,7 +13,6 @@ import Command from "../utils/command";
 
 import colors from "../GBF/GBFColor.json";
 import emojis from "../GBF/GBFEmojis.json";
-import commands from "../GBF/GBFCommands.json";
 
 import {
   ActionRowBuilder,
