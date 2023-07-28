@@ -1,3 +1,7 @@
+/**
+ * Written by Bunnys
+ * under GBF
+ */
 import {
   AttachmentBuilder,
   hyperlink,
@@ -8,17 +12,26 @@ import {
 } from "discord.js";
 
 import { ChannelsModel } from "../schemas/Beasters Schemas/Channels Schema";
-import { getChapters, downloadImageByIndex } from "../utils/BeastersEngine";
+import {
+  getChapters,
+  downloadImageByIndex,
+  getGroupName
+} from "../utils/BeastarsEngine";
 import { SendAndDelete } from "../utils/Engine";
 
 import colors from "../GBF/GBFColor.json";
 import emojis from "../GBF/GBFEmojis.json";
 import commands from "../GBF/GBFCommands.json";
 
+interface Relationship {
+  id: string;
+  type: string;
+}
+
 class MangaDownloader {
   private readonly mangaId: string;
-  private readonly mangaVersion: number;
-  constructor(mangaId: string, mangaVersion: number) {
+  private readonly mangaVersion: string;
+  constructor(mangaId: string, mangaVersion: string) {
     this.mangaId = mangaId;
     this.mangaVersion = mangaVersion;
   }
@@ -32,6 +45,7 @@ class MangaDownloader {
       spoiler?: boolean;
       chapterTitle?: string;
       maxPages?: number;
+      relations?: Relationship[];
     }
   > {
     let GuildData = await ChannelsModel.findOne({
@@ -69,22 +83,10 @@ class MangaDownloader {
       relationships: Relationship[];
     }
 
-    interface Relationship {
-      id: string;
-      type: string;
-    }
-
     const allChapters: Chapter[] = await getChapters(
       this.mangaId,
       this.mangaVersion
     );
-
-    function getGroupName(groupId: string): string {
-      if (groupId === "97b9cff4-7b84-4fed-929e-1a514be6ca20") return "HCS";
-      else if (groupId === "ca84d695-4e0e-48ba-8627-3cbb4f44f95b")
-        return "Hybridgumi";
-      else return "HCS";
-    }
 
     const targetChapter = Number(args[0]);
 
@@ -102,11 +104,6 @@ class MangaDownloader {
     if (Number.isNaN(targetPage))
       throw new Error(
         `<@${message.author.id}>, please input the page as a number`
-      );
-
-    if (targetChapter > allChapters.length)
-      throw new Error(
-        `<@${message.author.id}>, invalid chapter, there are only ${allChapters.length} chapters found`
       );
 
     let isSpoiler = false;
@@ -163,7 +160,8 @@ class MangaDownloader {
         spoiler: isSpoiler,
         chapterTitle: chapterTitle,
         maxPages: pageDownload.maxFiles,
-        allChapters: allChapters
+        allChapters: allChapters,
+        relations: targetChapterEntry.relationships
       };
     } catch (error) {
       const ErrorMessage = new EmbedBuilder()
