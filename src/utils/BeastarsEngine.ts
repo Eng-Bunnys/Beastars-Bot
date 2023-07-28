@@ -1,4 +1,8 @@
-import axios, { AxiosResponse } from "axios";
+/**
+ * Written by Bunnys
+ * under GBF
+ */
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 
@@ -58,6 +62,46 @@ interface Relationship {
   type: string;
 }
 
+export function getGroupName(groupId: string): string {
+  if (groupId === "97b9cff4-7b84-4fed-929e-1a514be6ca20") return "HCS";
+  else if (groupId === "ca84d695-4e0e-48ba-8627-3cbb4f44f95b")
+    return "Hybridgumi";
+  else return "HCS";
+}
+
+export function findChapterInstances(
+  chapterNumber: string,
+  chapters: Chapter[]
+): Chapter[] {
+  const instances: Chapter[] = [];
+  for (const chapter of chapters) {
+    if (chapter.attributes.chapter === chapterNumber) {
+      instances.push(chapter);
+    }
+  }
+  return instances;
+}
+
+export function getGroupType(
+  chapters: Chapter[],
+  chapterNumber: string
+): [Chapter, string][] {
+  const dupedChapters = findChapterInstances(chapterNumber, chapters);
+
+  if (!dupedChapters.length) throw new Error(`This chapter has no groups`);
+
+  let chapterData: [Chapter, string];
+  let groupType: string;
+  const FinalChapterData = [];
+
+  for (const chapter of chapters) {
+    groupType = getGroupName(chapter.relationships[0].id);
+    chapterData = [chapter, groupType];
+    FinalChapterData.push(chapterData);
+  }
+  return FinalChapterData;
+}
+
 export function getChapterPosition(
   chapters: Chapter[],
   chapterNumber: string,
@@ -86,7 +130,7 @@ export function getNextChapter(
 
 export async function getChapters(
   mangaId: string,
-  type: number
+  groupId: string
 ): Promise<Chapter[]> {
   try {
     const baseUrl = "https://api.mangadex.org";
@@ -102,18 +146,22 @@ export async function getChapters(
 
     const chapters =
       response.data?.data
-        .filter((chapter: any) => {
-          if (type === 1) return chapter.attributes.version === type;
-          else return true;
-        })
         .sort(
           (a: any, b: any) =>
-            parseInt(a.attributes.chapter) - parseInt(b.attributes.chapter)
-        ) || [];
+            parseFloat(a.attributes.chapter) - parseFloat(b.attributes.chapter)
+        )
+        .filter((chapter: any) => {
+          const chapterNumber = parseFloat(chapter.attributes.chapter);
+          return (
+            chapterNumber >= 172 &&
+            chapterNumber <= 175 &&
+            chapter.relationships[0]?.id === groupId
+          );
+        }) || [];
 
     return chapters;
   } catch (error) {
-    console.error("Failed to fetch manga chapters:", error);
+    console.error("Failed to fetch manga chapters: ", error);
     throw error;
   }
 }
@@ -171,7 +219,16 @@ export async function downloadImageByIndex(
         maxFiles: filenames.length
       };
     } else {
-      throw new Error(`Image index out of range [${filenames.length} pages]`);
+      const maxIndex = filenames.length - 1;
+      const filename = filenames[maxIndex];
+      const filePath = path.join(savePath, filename);
+
+      return {
+        message: `Page ${maxIndex + 1}/${filenames.length}`,
+        filePath,
+        chapterURL: chapterBaseURL,
+        maxFiles: filenames.length
+      };
     }
   } catch (error) {
     console.error("Failed to download image:", error);
