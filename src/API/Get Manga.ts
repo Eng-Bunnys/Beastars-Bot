@@ -24,12 +24,14 @@ class MangaDownloader {
   }
   async downloadMangaChapter(
     message: Message,
-    args: string[]
+    args: unknown[]
   ): Promise<
     BaseMessageOptions & {
+      allChapters?: any[];
       files?: AttachmentBuilder[];
       spoiler?: boolean;
       chapterTitle?: string;
+      maxPages?: number;
     }
   > {
     let GuildData = await ChannelsModel.findOne({
@@ -48,7 +50,34 @@ class MangaDownloader {
         `<@${message.author.id}>, invalid args, the correct usage is {prefix}manga <chapter> <page>`
       );
 
-    const allChapters = await getChapters(this.mangaId, this.mangaVersion);
+    interface Chapter {
+      id: string;
+      type: string;
+      attributes: {
+        volume: string;
+        chapter: string;
+        title: string;
+        translatedLanguage: string;
+        externalUrl: string | null;
+        publishAt: Date;
+        readableAt: Date;
+        createdAt: Date;
+        updatedAt: Date;
+        pages: number;
+        version: number;
+      };
+      relationships: Relationship[];
+    }
+
+    interface Relationship {
+      id: string;
+      type: string;
+    }
+
+    const allChapters: Chapter[] = await getChapters(
+      this.mangaId,
+      this.mangaVersion
+    );
 
     function getGroupName(groupId: string): string {
       if (groupId === "97b9cff4-7b84-4fed-929e-1a514be6ca20") return "HCS";
@@ -93,7 +122,6 @@ class MangaDownloader {
       );
 
     const mangaType = getGroupName(targetChapterEntry.relationships[0].id);
-    console.log(targetChapterEntry.relationships);
 
     const chapterTitle = targetChapterEntry.attributes.title;
 
@@ -133,7 +161,9 @@ class MangaDownloader {
         ),
         files: [imageAttachment],
         spoiler: isSpoiler,
-        chapterTitle: chapterTitle
+        chapterTitle: chapterTitle,
+        maxPages: pageDownload.maxFiles,
+        allChapters: allChapters
       };
     } catch (error) {
       const ErrorMessage = new EmbedBuilder()
