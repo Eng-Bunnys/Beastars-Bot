@@ -114,8 +114,8 @@ class MangaGetter {
 
     const userMention =
       message instanceof Message
-        ? `<@${message.author.username}>`
-        : `<@${message.user.username}>`;
+        ? `${message.author.username}`
+        : `${message.user.username}`;
 
     if (message instanceof Message && args && args.length < 4)
       throw new Error(
