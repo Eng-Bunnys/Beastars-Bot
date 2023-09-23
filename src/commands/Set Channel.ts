@@ -289,8 +289,6 @@ export default class SetChannelCommand extends Command {
     });
 
     collector.on("end", async (collected, reason) => {
-      console.log(reason);
-
       let closeText = `30 Seconds idle timer`;
       if (reason === "Force Quit") closeText = reason;
       PageEmbed.setDescription(
