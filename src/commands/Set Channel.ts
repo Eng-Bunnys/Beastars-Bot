@@ -1,5 +1,8 @@
 import GBFClient from "../handler/clienthandler";
-import { ChannelsModel } from "../schemas/Beastars Schemas/Channels Schema";
+import {
+  ChannelsModel,
+  IChannels
+} from "../schemas/Beastars Schemas/Channels Schema";
 import { SendAndDelete } from "../utils/Engine";
 import Command from "../utils/command";
 
@@ -32,7 +35,7 @@ export default class SetChannelCommand extends Command {
       name: "spoiler",
       aliases: ["sp"],
       category: "General",
-      usage: `${client.Prefix}spoiler whitelist`,
+      usage: `${client.Prefix}spoiler [type]`,
       description: "Set the whitelisted channels [Admin]"
     });
   }
@@ -56,12 +59,12 @@ export default class SetChannelCommand extends Command {
       return SendAndDelete(
         message.channel,
         {
-          content: `<@${message.author.id}>, specify what you want to do , whitelist / blacklist`
+          content: `<@${message.author.id}>, specify what you want to do , whitelist / blacklist / show [Shows all of the whitelisted channels]`
         },
         4
       );
 
-    let GuildData = await ChannelsModel.findOne({
+    let GuildData: IChannels = await ChannelsModel.findOne({
       GuildID: message.guild.id
     });
 
@@ -69,6 +72,7 @@ export default class SetChannelCommand extends Command {
       GuildData = new ChannelsModel({
         GuildID: message.guild.id
       });
+      //@ts-ignore
       await GuildData.save();
     }
 
@@ -85,6 +89,18 @@ export default class SetChannelCommand extends Command {
     function splitArray(array: any[], splitIndex: number): [any[], any[]] {
       if (array.length < splitIndex) return [array, []];
       else return [array.slice(0, splitIndex), array.slice(splitIndex)];
+    }
+
+    function getWhitelistChannels(data: IChannels): string {
+      const whitelistChannels = data.Channel.filter(
+        (channel) => channel.Type === "whitelist"
+      );
+
+      const whitelistString = whitelistChannels
+        .map((channel) => `- <#${channel.ID}>`)
+        .join("\n");
+
+      return whitelistString;
     }
 
     function generateChannelSelectMenu(
@@ -115,15 +131,29 @@ export default class SetChannelCommand extends Command {
 
     if (
       !args[0].toLocaleLowerCase().includes("whitelist") &&
-      !args[0].toLocaleLowerCase().includes("blacklist")
+      !args[0].toLocaleLowerCase().includes("blacklist") &&
+      !args[0].toLocaleLowerCase().includes("show")
     )
       return SendAndDelete(
         message.channel,
         {
-          content: `<@${message.author.id}>, invalid args, enter either \`whitelist\` or \`blacklist\``
+          content: `<@${message.author.id}>, invalid args, enter either \`whitelist\`, \`blacklist\` or \`show\``
         },
         4
       );
+
+    if (args[0].toLocaleLowerCase().includes("show")) {
+      const channels = getWhitelistChannels(GuildData);
+
+      const ChannelsEmbed = new EmbedBuilder()
+        .setTitle(`Whitelisted Channels`)
+        .setColor("Blurple")
+        .setDescription(channels);
+
+      return message.reply({
+        embeds: [ChannelsEmbed]
+      });
+    }
 
     const textChannels = getTextChannels(message.guildId);
     const PageLimit = 5;
@@ -149,12 +179,12 @@ export default class SetChannelCommand extends Command {
       new ButtonBuilder()
         .setCustomId(`${message.author.id}_nextPage`)
         .setLabel("Next page ➡️")
+        .setDisabled()
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
-        .setCustomId("forceQuit")
-        .setLabel("Close")
+        .setCustomId("forceQuitChannels")
+        .setLabel("Close Menu")
         .setStyle(ButtonStyle.Danger)
-        .setEmoji("❌")
     ]);
 
     const ChannelsRow: ActionRowBuilder<any> =
@@ -172,7 +202,8 @@ export default class SetChannelCommand extends Command {
     });
 
     const filter = (interaction) =>
-      interaction.customId.includes(`${message.author.id}`);
+      interaction.customId.includes(`${message.author.id}`) ||
+      interaction.customId === "forceQuitChannels";
 
     const collector = message.channel.createMessageComponentCollector({
       filter,
@@ -181,7 +212,7 @@ export default class SetChannelCommand extends Command {
     });
 
     collector.on("collect", async (interaction) => {
-      if (interaction.customId === "forceQuit") {
+      if (interaction.customId === "forceQuitChannels") {
         collector.stop("Force Quit");
       }
       const [user, buttonId] = interaction.customId.split("_");
@@ -258,6 +289,8 @@ export default class SetChannelCommand extends Command {
     });
 
     collector.on("end", async (collected, reason) => {
+      console.log(reason);
+
       let closeText = `30 Seconds idle timer`;
       if (reason === "Force Quit") closeText = reason;
       PageEmbed.setDescription(
