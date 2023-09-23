@@ -36,7 +36,7 @@ export default function SetChannel(client: GBFClient) {
 
       if (
         GuildData.Channel.length &&
-        GuildData.Channel.find((item) => item.ID == ChannelID).Type ===
+        GuildData.Channel.find((item) => item.ID == ChannelID)?.Type ===
           ActionType
       ) {
         interaction.reply({
