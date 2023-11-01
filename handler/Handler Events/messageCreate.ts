@@ -35,28 +35,28 @@ export default function messageCreate(client: GBFClient) {
   client.on(Events.MessageCreate, async (message: Message): Promise<any> => {
     if (message.author.bot) return;
 
-    if (
-      message.content === client.user.id ||
-      message.content.includes(client.user.id)
-    ) {
-      const AboutMe = new EmbedBuilder()
-        .setTitle(`${client.user.username}!`)
-        .setColor(colours.DEFAULT as ColorResolvable)
-        .setDescription(
-          `${
-            client.user.username
-          }, the tech prodigy by <@333644367539470337>, was meticulously engineered over 3 months. Rigorous testing has ensured a seamless user experience. My standout feature, the enhanced manga tool, offers swift navigation, rapid load times and ultimate security. All this, while running on the robust GBF engine, that supports over 10 million users and is constantly updated. Quite the tech marvel, wouldn't you agree?\n\nNeed Help? Use the ${
-            client.Prefix
-          }help command!\n- ${hyperlink(
-            "GBF",
-            "https://discord.gg/yrM7fhgNBW"
-          )}`
-        );
+    // if (
+    //   message.content === client.user.id ||
+    //   message.content.includes(client.user.id)
+    // ) {
+    //   const AboutMe = new EmbedBuilder()
+    //     .setTitle(`${client.user.username}!`)
+    //     .setColor(colours.DEFAULT as ColorResolvable)
+    //     .setDescription(
+    //       `${
+    //         client.user.username
+    //       }, the tech prodigy by <@333644367539470337>, was meticulously engineered over 3 months. Rigorous testing has ensured a seamless user experience. My standout feature, the enhanced manga tool, offers swift navigation, rapid load times and ultimate security. All this, while running on the robust GBF engine, that supports over 10 million users and is constantly updated. Quite the tech marvel, wouldn't you agree?\n\nNeed Help? Use the ${
+    //         client.Prefix
+    //       }help command!\n- ${hyperlink(
+    //         "GBF",
+    //         "https://discord.gg/yrM7fhgNBW"
+    //       )}`
+    //     );
 
-      return message.reply({
-        embeds: [AboutMe]
-      });
-    }
+    //   return message.reply({
+    //     embeds: [AboutMe]
+    //   });
+    // }
 
     const blacklistData = await GBFBotBanModel.findOne({
       userId: message.author.id
