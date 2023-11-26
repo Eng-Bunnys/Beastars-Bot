@@ -40,7 +40,7 @@ import emojis from "../GBF/GBFEmojis.json";
 import commands from "../GBF/GBFCommands.json";
 import { client } from "..";
 import { DriveLinksNames } from "./Drive Links";
-
+//Interface for what the API returns
 export interface Relationship {
   id: string;
   type: string;
