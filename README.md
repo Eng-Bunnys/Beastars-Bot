@@ -4,9 +4,9 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
 
 ## Features
 - Manga Pages:
+- Fetch pages from a range of select mangas using the MangaDex API and Google Drive API.
+- Stay updated with your favorite mangas without leaving Discord.
 
-Fetch pages from a range of select mangas using the MangaDex API and Google Drive API.
-Stay updated with your favorite mangas without leaving Discord.
 - Random Image:
 
 Get a random image to add some fun and variety to your server.
