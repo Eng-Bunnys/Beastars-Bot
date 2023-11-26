@@ -19,7 +19,7 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
 - GBF Handler:
   -Leverage the power of the GBF Handler for efficient and organized command handling.
   
-##Commands
+## Commands
 - Manga Commands:
   - !manga - Fetch pages from the specified manga. 
   - Random Image Command:
