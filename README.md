@@ -33,7 +33,8 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
 1. Clone the repository <br>
 2. Install dependencies: npm install <br>
 3. Configure your bot token, API keys, and other settings in config.json. <br>
-4. Run the bot: npm start <br>
+4. You'll have to add the config, drive, and images folders
+5. Run the bot: npm start <br>
 
 ## Credits
 Bot Developer: .Bunnys <br>
