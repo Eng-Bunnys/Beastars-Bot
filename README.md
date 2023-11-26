@@ -30,13 +30,14 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
     -Various moderation commands for managing your server.
 
 ## Installation
-1.Clone the repository: git clone https://github.com/your/repo.git <br>
+1.Clone the repository <br>
 2.Install dependencies: npm install <br>
 3.Configure your bot token, API keys, and other settings in config.json. <br>
 4.Run the bot: npm start <br>
 
 ## Credits
 Bot Developer: .Bunnys
+Command Handler: [GBF Handler](https://github.com/GBF-Nexus/Discord-Bot-Commands-and-Handler)
 Discord.js: The powerful library for interacting with the Discord API.
 MangaDex API: Access manga data for a seamless reading experience.
 Google Drive API: Fetch manga pages from Google Drive.
