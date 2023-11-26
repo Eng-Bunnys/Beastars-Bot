@@ -30,10 +30,10 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
     -Various moderation commands for managing your server.
 
 ## Installation
-1.Clone the repository <br>
-2.Install dependencies: npm install <br>
-3.Configure your bot token, API keys, and other settings in config.json. <br>
-4.Run the bot: npm start <br>
+1. Clone the repository <br>
+2. Install dependencies: npm install <br>
+3. Configure your bot token, API keys, and other settings in config.json. <br>
+4. Run the bot: npm start <br>
 
 ## Credits
 Bot Developer: .Bunnys <br>
