@@ -21,7 +21,7 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
   
 ##Commands
 - Manga Commands:
-  - !manga - Fetch pages from the specified manga.
+  - !manga - Fetch pages from the specified manga. 
   - Random Image Command:
   - !randomimage - Get a random image.
   - Imgur Commands:
@@ -30,10 +30,10 @@ Beastars Bot is a Discord bot developed by .Bunnys that brings a variety of feat
     -Various moderation commands for managing your server.
 
 ## Installation
-1.Clone the repository: git clone https://github.com/your/repo.git
-2.Install dependencies: npm install
-3.Configure your bot token, API keys, and other settings in config.json.
-4.Run the bot: npm start
+1.Clone the repository: git clone https://github.com/your/repo.git <br>
+2.Install dependencies: npm install <br>
+3.Configure your bot token, API keys, and other settings in config.json. <br>
+4.Run the bot: npm start <br>
 
 ## Credits
 Bot Developer: .Bunnys
