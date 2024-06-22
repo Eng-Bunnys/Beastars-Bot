@@ -38,6 +38,12 @@ export class ChannelWhitelistCommands extends SlashCommand {
               interaction.options as CommandInteractionOptionResolver
             ).getChannel("channel", true) as GuildTextBasedChannel;
 
+            if (UpdatedChannel.type !== ChannelType.GuildText)
+              return interaction.reply({
+                content: "Invalid Channel Type, Only specify a Text Channel",
+                ephemeral: true,
+              });
+
             try {
               const BeastarsAPI = new ChannelWhitelist(
                 interaction.member as GuildMember,
@@ -74,6 +80,13 @@ export class ChannelWhitelistCommands extends SlashCommand {
             const UpdatedChannel = (
               interaction.options as CommandInteractionOptionResolver
             ).getChannel("channel", true) as GuildTextBasedChannel;
+
+            if (UpdatedChannel.type !== ChannelType.GuildText)
+              return interaction.reply({
+                content: "Invalid Channel Type, Only specify a Text Channel",
+                ephemeral: true,
+              });
+
             try {
               const BeastarsAPI = new ChannelWhitelist(
                 interaction.member as GuildMember,
