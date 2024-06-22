@@ -11,7 +11,6 @@ import {
 } from "discord.js";
 import { SlashCommand, GBF, StatusCode, ColorCodes } from "../../Handler";
 import { ImageActions } from "../../API/Image Actions";
-import { AdminModel, IAdminDocument } from "../../Modals/Admin Settings";
 import { IImageDataDocument, ImageModel } from "../../Modals/Image Schema";
 
 export class SetImageCommand extends SlashCommand {
