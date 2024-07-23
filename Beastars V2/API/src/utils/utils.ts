@@ -1,3 +1,5 @@
+import { ErrorResponse, SuccessResponse } from "../types/responses";
+
 /**
  * Returns a random element from an array.
  * @template T
@@ -11,3 +13,25 @@ export function GetRandomFromArray<T>(Array: T[]): T {
   const RandomIndex = Math.floor(Math.random() * Array.length);
   return Array[RandomIndex];
 }
+
+export const createSuccessResponse = <T>(
+  message: string,
+  data: T
+): SuccessResponse<T> => {
+  return {
+    success: true,
+    message,
+    data,
+  };
+};
+
+export const createErrorResponse = (
+  error: string,
+  details?: any
+): ErrorResponse => {
+  return {
+    success: false,
+    error,
+    details,
+  };
+};
