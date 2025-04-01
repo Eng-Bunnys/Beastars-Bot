@@ -1,1 +1,0 @@
-# Offical Beastars Bot API
