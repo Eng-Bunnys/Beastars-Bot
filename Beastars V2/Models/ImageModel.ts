@@ -22,6 +22,7 @@ const ImageSchema = new Schema<IImageData>(
         name: { type: String, required: true },
         imageID: { type: String, required: true },
         URL: { type: String, required: true },
+        _id: false,
       },
     ],
   },

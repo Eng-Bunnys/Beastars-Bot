@@ -6,9 +6,10 @@ import { textSync } from "figlet";
 
 export function GBFReady(client: GBF) {
   client.on(Events.ClientReady, async () => {
-    const TotalUsers =
-      client.guilds.cache.reduce((Acc, Guild) => Acc + Guild.memberCount, 0) +
-      44000;
+    const TotalUsers = client.guilds.cache.reduce(
+      (Acc, Guild) => Acc + Guild.memberCount,
+      0
+    );
 
     console.log(
       redBright(

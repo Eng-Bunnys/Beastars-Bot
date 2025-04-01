@@ -46,16 +46,60 @@ export class ImageCommands extends SlashCommand {
                 interaction.guild,
                 ["1133870182314561536", "1230506952266616895"] // TODO: Get Admin Roles from DB
               );
-
               const imageID = await imageHandler.addImage(imageName, imageURL);
 
               await interaction.reply({
-                content: `Image added successfully with ID: ${imageID}`,
-                flags: MessageFlags.Ephemeral,
+                content: `Image "${imageName}" added successfully with ID "${imageID}"`,
               });
             } catch (error) {
               await interaction.reply({
                 content: `Failed to add image: ${error.message}`,
+                flags: MessageFlags.Ephemeral,
+              });
+            }
+          },
+        },
+        remove: {
+          description: "Remove an image from the image list",
+          SubCommandOptions: [
+            {
+              name: "image-id",
+              description: "The image's ID",
+              type: ApplicationCommandOptionType.String,
+              autocomplete: true,
+              required: true,
+            },
+          ],
+          async autocomplete(interaction, option) {
+            const imageHandler = new BeastarsImage(
+              client,
+              interaction.user,
+              interaction.guild,
+              ["1133870182314561536", "1230506952266616895"] // TODO: Get Admin Roles from DB
+            );
+            const imageIDs = await imageHandler.getImageIDs();
+            return imageIDs;
+          },
+          async execute({ client, interaction }) {
+            const imageID = (
+              interaction.options as CommandInteractionOptionResolver
+            ).getString("image-id", true);
+
+            try {
+              const imageHandler = new BeastarsImage(
+                client,
+                interaction.user,
+                interaction.guild,
+                ["1133870182314561536", "1230506952266616895"] // TODO: Get Admin Roles from DB
+              );
+              await imageHandler.removeImage(imageID);
+
+              await interaction.reply({
+                content: `Image "${imageID}" removed successfully`,
+              });
+            } catch (error) {
+              await interaction.reply({
+                content: `Failed to remove image: ${error.message}`,
                 flags: MessageFlags.Ephemeral,
               });
             }

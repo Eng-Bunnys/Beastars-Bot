@@ -117,4 +117,13 @@ export class BeastarsImage {
       throw new Error(`Failed to list images: ${error.message}`);
     }
   }
+
+  public async getImageIDs(): Promise<string[]> {
+    try {
+      const imageData = await this.imageData.init();
+      return imageData.images.map((image) => image.imageID);
+    } catch (error) {
+      throw new Error(`Failed to get image IDs: ${error.message}`);
+    }
+  }
 }
