@@ -4,7 +4,7 @@ import {
   MessageFlags,
 } from "discord.js";
 import { SlashCommand, GBF } from "../../Handler";
-import { BeastarsImage } from "../../Beastars/ImageHandler";
+import { BeastarsImage } from "../../Beastars/Image/ImageHandler";
 
 export class ImageCommands extends SlashCommand {
   constructor(client: GBF) {

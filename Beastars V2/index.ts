@@ -12,14 +12,10 @@ export const client = new GBF({
   Version: "2.0.0",
   CommandsFolder: path.join(__dirname, "./Commands"),
   // EventsFolder: path.join(__dirname, "./Events"),
-  Prefix: "b!",
+  Prefix: "test!",
   AutoLogin: true,
   Developers: ["333644367539470337"],
   TestServers: ["1131194563256664176"],
   DMEnabled: false,
   LogActions: true,
-  DisabledHandlerCommands: [
-    BuiltInCommands["Bot Ban"],
-    BuiltInCommands["Set Presence"],
-  ],
 });

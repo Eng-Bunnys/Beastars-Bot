@@ -1,16 +1,11 @@
-import { ActivityType, Events } from "discord.js";
+import { Events } from "discord.js";
 import { GBF } from "../GBF";
-import { redBright, whiteBright, underline } from "chalk";
+import { redBright } from "chalk";
 
 import { textSync } from "figlet";
 
 export function GBFReady(client: GBF) {
   client.on(Events.ClientReady, async () => {
-    const TotalUsers = client.guilds.cache.reduce(
-      (Acc, Guild) => Acc + Guild.memberCount,
-      0
-    );
-
     console.log(
       redBright(
         textSync(`${client.user.username}`, {
@@ -19,32 +14,7 @@ export function GBFReady(client: GBF) {
       )
     );
 
-    console.log(
-      redBright(
-        underline(`${client.user.username} is now online! v${client.Version}`)
-      )
-    );
-
-    console.log(
-      whiteBright(
-        `> Total app users: ${TotalUsers.toLocaleString()}\n> Total Servers: ${client.guilds.cache.size.toLocaleString()}\n---------------------------------\n` +
-          `> Presence: ${client.user.presence.status}\n> Status: ${
-            client.user.presence.activities.length
-              ? client.user.presence.activities[0].name
-              : "No Status"
-          }`
-      )
-    );
-
-    client.user.setPresence({
-      status: "online",
-      activities: [
-        {
-          name: "Now using GBF v3",
-          type: ActivityType.Playing,
-        },
-      ],
-    });
+    console.log("Beastars Bot is now online\n\nWritten by .Bunnys");
 
     process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
       console.log(

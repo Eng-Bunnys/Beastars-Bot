@@ -486,18 +486,6 @@ export class GBF extends Client implements IGBF {
       );
     }
 
-    if (!this.DisabledHandlerCommands.includes(BuiltInCommands.All))
-      try {
-        await this.LoadCommands(
-          path.join(__dirname, "./Handler Commands"),
-          true
-        );
-      } catch (BuiltInCommandsError) {
-        throw new GBFError(
-          `Error Registering Built-In Commands\n${BuiltInCommandsError}`
-        );
-      }
-
     try {
       if (this.CommandsFolder) await this.LoadCommands(this.CommandsFolder);
     } catch (CommandsError) {
