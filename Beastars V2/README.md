@@ -14,3 +14,11 @@
 - Added checks for missing data
 - Uses atomic file operations now
 - MIME types now have type assertion
+
+### Wiki
+- Added input validation, min & max length
+- Improved error handling, more descriptive error messages
+- Added support for redirect responses (301/302)
+- Better type safety
+- Now defers the reply in case of longer search times
+- More reliable with proper HTTP status code handling
