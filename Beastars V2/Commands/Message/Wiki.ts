@@ -1,13 +1,12 @@
 import { hyperlink } from "discord.js";
 import { BeastarsWiki } from "../../Beastars/Misc/Wiki";
-import { MessageCommand, GBF } from "../../Handler";
+import { MessageCommand, type GBF } from "../../Handler";
 
 export class WikiCommandMessage extends MessageCommand {
   constructor(client: GBF) {
     super(client, {
       name: "wiki",
       description: "Search the Beastars wiki",
-      aliases: [],
       category: "General",
       cooldown: 5,
       usage: `${client.Prefix}wiki <query>`,

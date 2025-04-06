@@ -162,9 +162,9 @@ export interface MessageCommandExecute {
   message: Message;
   /**
    * An array of the user's input argument split
-   * @type {unknown[]}
+   * @type {string[]}
    */
-  args?: unknown[];
+  args?: string[];
 }
 export interface MessageCommandOptions {
   /**

@@ -5,7 +5,7 @@ import {
   type Snowflake,
   type User,
 } from "discord.js";
-import { ImageDataHandler } from "../../Models/ImageModel";
+import { type IImage, ImageDataHandler } from "../../Models/ImageModel";
 import { type GBF } from "../../Handler";
 
 export type Action = "Add" | "Remove" | "List";
@@ -57,30 +57,8 @@ export class BeastarsImage {
   }
 
   private isValidURL(url: string): boolean {
-    try {
-      const parsedURL = new URL(url);
-
-      const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
-      const hasImageExtension = imageExtensions.test(parsedURL.href);
-
-      const isDiscordCDN =
-        parsedURL.hostname === "media.discordapp.net" &&
-        parsedURL.pathname.startsWith("/attachments/");
-
-      const imageDomains = [
-        "imgur.com",
-        "i.imgur.com",
-        "i.imgbb.com",
-        "i.ibb.co",
-      ];
-      const isImageDomain = imageDomains.some(
-        (domain) => parsedURL.hostname === domain
-      );
-
-      return hasImageExtension || isDiscordCDN || isImageDomain;
-    } catch (error) {
-      throw new Error(`URL validation failed: ${error.message}`);
-    }
+    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)/i;
+    return imageExtensions.test(url);
   }
 
   public async addImage(name: string, URL: string): Promise<string> {
@@ -124,6 +102,21 @@ export class BeastarsImage {
       return imageData.images.map((image) => image.imageID);
     } catch (error) {
       throw new Error(`Failed to get image IDs: ${error.message}`);
+    }
+  }
+
+  public async getImageByID(imageID: string): Promise<IImage> {
+    try {
+      const imageData = await this.imageData.init();
+      const image = imageData.images.find(
+        (img) => img.imageID.toLowerCase() === imageID.toLowerCase()
+      );
+
+      if (!image) throw new Error("Image not found");
+
+      return image;
+    } catch (error) {
+      throw new Error(`Failed to get image by ID: ${error.message}`);
     }
   }
 }

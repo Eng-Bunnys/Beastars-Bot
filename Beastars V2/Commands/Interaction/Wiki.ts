@@ -1,10 +1,9 @@
 import {
   ApplicationCommandOptionType,
-  CommandInteractionOptionResolver,
+  type CommandInteractionOptionResolver,
   hyperlink,
-  MessageFlags,
 } from "discord.js";
-import { SlashCommand, GBF } from "../../Handler";
+import { SlashCommand, type GBF } from "../../Handler";
 import { BeastarsWiki } from "../../Beastars/Misc/Wiki";
 
 export class WikiSearchInteraction extends SlashCommand {
