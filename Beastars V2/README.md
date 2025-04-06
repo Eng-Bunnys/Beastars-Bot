@@ -6,6 +6,9 @@
 
 ### Images
 - Now uses a class to handle all the actions, which ensures better error handling, easier maintenance, and allows for both interaction and message commands
+- Added actual URL validation this time
+- Added pagination to the list command to avoid clutter
+- Now uses image IDs this way you can have duplicate image names
 
 ### Drive 
 - Added constants for a consistent file storage location
