@@ -211,27 +211,27 @@ export class ImageCommands extends SlashCommand {
 
                 return new ActionRowBuilder<ButtonBuilder>().addComponents([
                   new ButtonBuilder()
-                    .setCustomId("firstPage")
+                    .setCustomId("firstPageImage")
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji("⏪")
                     .setDisabled(currentPage === 0),
                   new ButtonBuilder()
-                    .setCustomId("prevEmbed")
+                    .setCustomId("prevEmbedImage")
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji("◀️")
                     .setDisabled(currentPage === 0),
                   new ButtonBuilder()
-                    .setCustomId("nextEmbed")
+                    .setCustomId("nextEmbedImage")
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji("▶️")
                     .setDisabled(currentPage === messageEmbeds.length - 1),
                   new ButtonBuilder()
-                    .setCustomId("lastPage")
+                    .setCustomId("lastPageImage")
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji("⏩")
                     .setDisabled(currentPage === messageEmbeds.length - 1),
                   new ButtonBuilder()
-                    .setCustomId("stop")
+                    .setCustomId("stopImage")
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji(Emojis.Error)
                     .setDisabled(false),
@@ -258,22 +258,22 @@ export class ImageCommands extends SlashCommand {
                 let currentPage = pageTracker.get(userID) || 0;
 
                 switch (i.customId) {
-                  case "stop":
+                  case "stopImage":
                     collector.stop();
                     break;
-                  case "nextEmbed":
+                  case "nextEmbedImage":
                     currentPage = Math.min(
                       currentPage + 1,
                       messageEmbeds.length - 1
                     );
                     break;
-                  case "prevEmbed":
+                  case "prevEmbedImage":
                     currentPage = Math.max(currentPage - 1, 0);
                     break;
-                  case "firstPage":
+                  case "firstPageImage":
                     currentPage = 0;
                     break;
-                  case "lastPage":
+                  case "lastPageImage":
                     currentPage = messageEmbeds.length - 1;
                     break;
                 }

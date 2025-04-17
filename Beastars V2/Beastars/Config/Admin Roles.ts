@@ -31,7 +31,7 @@ export class AdminRoles {
     );
 
     if (
-      !this.commandAuthor.permissions.has(PermissionFlagsBits.Administrator) ||
+      !this.commandAuthor.permissions.has(PermissionFlagsBits.Administrator) &&
       !hasAdminRole
     )
       throw new Error("You do not have permission to use this command");

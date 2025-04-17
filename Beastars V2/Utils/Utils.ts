@@ -7,6 +7,14 @@ import {
   PermissionFlagsBits,
   PermissionResolvable,
   TextBasedChannel,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ComponentType,
+  MessageFlags,
+  CommandInteraction,
+  Snowflake,
 } from "discord.js";
 
 export function messageSplit(
@@ -115,4 +123,134 @@ export function KeyPerms(role: GuildMember) {
       KeyPermissions.push(`Moderate Members`);
   }
   return [KeyPermissions.join(", ") || "No Permissions", KeyPermissions.length];
+}
+
+export type PaginationOptions = {
+  interaction: CommandInteraction;
+  userID: Snowflake;
+  messageEmbeds: EmbedBuilder[];
+  getRow: (
+    sessionID: string,
+    currentPage: number
+  ) => ActionRowBuilder<ButtonBuilder>;
+  pageTracker: Map<string, number>;
+  timeout?: number;
+  sessionID?: string;
+  onEnd?: (finalPage: number) => Promise<void> | void;
+};
+
+export async function pagination({
+  interaction,
+  userID,
+  messageEmbeds,
+  getRow,
+  pageTracker,
+  timeout = 60000,
+  sessionID = userID, // Default to per-user session
+  onEnd,
+}: PaginationOptions) {
+  if (!interaction.channel)
+    return interaction.reply({
+      content: "Channel not found. Cannot start pagination.",
+      flags: MessageFlags.Ephemeral,
+    });
+
+  if (pageTracker.has(sessionID))
+    return interaction.reply({
+      content:
+        "You already have an active session. Please finish it before starting a new one.",
+      flags: MessageFlags.Ephemeral,
+    });
+
+  let currentPage = 0;
+  pageTracker.set(sessionID, currentPage);
+
+  try {
+    await interaction.reply({
+      embeds: [messageEmbeds[currentPage]],
+      components: [getRow(sessionID, currentPage)],
+    });
+  } catch (err) {
+    console.error("Initial reply failed:", err);
+    pageTracker.delete(sessionID);
+
+    return interaction.followUp({
+      content: "Something went wrong while starting pagination.",
+      flags: MessageFlags.Ephemeral,
+    });
+  }
+
+  const filter = (i: ButtonInteraction) => i.user.id === userID;
+
+  const collector = interaction.channel.createMessageComponentCollector({
+    filter,
+    componentType: ComponentType.Button,
+    time: timeout,
+  });
+
+  collector.on("collect", async (i: ButtonInteraction) => {
+    try {
+      switch (i.customId) {
+        case `${sessionID}_firstPage`:
+          currentPage = 0;
+          break;
+        case `${sessionID}_prevPage`:
+          currentPage = Math.max(currentPage - 1, 0);
+          break;
+        case `${sessionID}_nextPage`:
+          currentPage = Math.min(currentPage + 1, messageEmbeds.length - 1);
+          break;
+        case `${sessionID}_lastPage`:
+          currentPage = messageEmbeds.length - 1;
+          break;
+        case `${sessionID}_stop`:
+          collector.stop();
+          return;
+      }
+
+      pageTracker.set(sessionID, currentPage);
+
+      await i.deferUpdate();
+
+      await i.editReply({
+        embeds: [messageEmbeds[currentPage]],
+        components: [getRow(sessionID, currentPage)],
+      });
+
+      collector.resetTimer();
+    } catch (err) {
+      console.error("Error during interaction:", err);
+    }
+  });
+
+  collector.on("end", async (_collected, reason) => {
+    pageTracker.delete(sessionID);
+    const finalPage = currentPage;
+
+    if (reason !== "messageDelete") {
+      try {
+        const disabledRow = getRow(sessionID, finalPage);
+
+        for (const component of disabledRow.components)
+          (component as ButtonBuilder).setDisabled(true);
+
+        await interaction.editReply({
+          embeds: [messageEmbeds[finalPage]],
+          components: [disabledRow],
+        });
+      } catch (err) {
+        console.error("Error disabling buttons:", err);
+        try {
+          await interaction.followUp({
+            content: `I ran into an error while disabling the buttons.\n\`\`\`md\n${err}\`\`\``,
+            flags: MessageFlags.Ephemeral,
+          });
+        } catch (_) {}
+      }
+    }
+
+    if (onEnd) {
+      await onEnd(finalPage);
+    }
+  });
 }

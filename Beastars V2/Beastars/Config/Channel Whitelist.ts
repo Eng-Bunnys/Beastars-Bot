@@ -40,7 +40,7 @@ export class ChannelWhitelist {
   public async addChannel(channelID: Snowflake): Promise<void> {
     await this.checkAuthorPermissions();
 
-    if (this.settings.channelIDs.includes(channelID))
+    if (this.isChannelWhitelisted(channelID))
       throw new Error("This channel is already whitelisted");
 
     const updatedChannels = [...this.settings.channelIDs, channelID];
@@ -53,7 +53,7 @@ export class ChannelWhitelist {
   public async removeChannel(channelID: Snowflake): Promise<void> {
     await this.checkAuthorPermissions();
 
-    if (!this.settings.channelIDs.includes(channelID))
+    if (!this.isChannelWhitelisted(channelID))
       throw new Error("This channel is not whitelisted");
 
     const updatedChannels = this.settings.channelIDs.filter(
